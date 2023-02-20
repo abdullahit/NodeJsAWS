@@ -1,0 +1,16 @@
+{
+  "name": "fileuploading",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^9.17.1",
+    "firebase-admin": "^11.5.0"
+  }
+}

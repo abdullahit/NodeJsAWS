@@ -1,0 +1,227 @@
+REST APi
+
+Representational State Transfer Application Programming interface
+     it is a software that allows two applications to commnunicate whit each other over the internet and through
+     variouse devices. 
+     Every tiem you access an app like fb, insta, or check the weather on your smart phone an API used.
+
+     A REstful api is an architechtural style for an application program interface*(api) that uses HTTP requests to access and use data. REST is not a prgramig languages.
+     
+     REST +API =restfull api
+     old tha SOAP=REstfull api=GraphQL this is latest api
+     client request krega api ko, through http request(GET, POST, PUT, DELETE), to the server or other application. and server jo response deta h use json or xml formate me deta h, 
+     api nothing but, it helps to communicate among variouse device over the internet
+restApi is stateless means tha jo request kroge whi response dega, koi data store kkrk ni rkhta h.
+
+     Create:- POST method---> create new user,
+     Read:-  GEt read 
+     update:- put(complete makever, pura complete new ),      patch method(damged objec ko chage)
+     delete:- DELETE
+
+
+1. creation of folder named: REstfulapi
+2. for including package.json ----> npm init -y   This Package.json file will contain all the scripts, like how to run the app, or how to test the app, as well as all the dependencies.
+3. you can add multiple dependencies here 
+4. express(dependcy) install krna by npm install express 
+5.     npm install mongoose add mongoose dependency
+6. add validator dependency---> npm install validator
+7. create new folder names "src" by mkdir
+8. created new file named app.js by "type nul > app.js"
+9.Express will be used for the middleware to create various CRUD endpoints.
+    1. Mongoose for managing data in MongoDB using various queries.
+    2. Nodemon to restart our server every time we save our file.
+    3. Dotenv to manage a .env file.
+
+9. for runnig application require express
+const express=require("express");
+
+const app = express();
+require("./db/conn");
+
+// automatically assigne new port no by this method 
+const port=process.env.PORT || 3000;
+// definning the rout folder
+app.get("/", (req, res)=>{
+    res.send("Hello from the other side.")
+})
+
+// for creating new user and request and response
+app.post("/students", (req, res)=>{
+    res.send("Hello from the other side.")
+})
+
+app.listen(port, ()=>{
+    // for checking connectin is right or not
+    console.log(`connection is setup at ${port}`);  //string literals used here
+})
+
+
+10. now, add with mongoDB src k ander new folder created name db
+11. conn.js
+
+/ establish connection
+const mongoose = require("mongoose");
+mongoose.set('strictQuery', false);
+mongoose.connect("mongodb://127.0.0.1:27017/students-api").then(()=>{
+    console.log("connection is  successfull");})
+    .catch((e)=>{
+        console.log("No connection ")
+    
+})
+
+You dont need express.json() and express.urlencoded() for GET request or DELETE request.
+we only need it for post and put req
+express.json() is a method inbuilt in express to recognize the incoming request object as a 
+Json object. this method is called middleware in your application using the code app.js(express.json())
+----------------------
+--------------------
+#. creation of your own api using async and await function and post http method thaat
+app.js
+const express=require("express");
+require("./db/conn");
+const Student = require("./models/students");
+
+const app = express(); 
+const port= process.env.PORT || 3000;
+
+//json me use krne k liye express ko import krna padega
+app.use(express.json()); // work as middleware
+
+// async await technique
+app.post("/students",async(req, res)=>{  //async function
+
+  try {
+      const user= new Student(req.body); //getting the data
+      const creatUser = await user.save();  //after creation of data it will wait
+      res.status(201).send(creatUser);
+
+  }catch(e){
+      res.status(400).send(e) } 
+})
+
+app.listen(port, ()=>{
+  console.log(`connection is setup at ${port}`);
+})
+
+-----------------------------------
+
+//create a new stuedent using promises that is not good practice and best is asyn await
+// app.post("/students", (req, res)=>{
+//     console.log(req.body)
+//     const user= new Student(req.body);
+
+//     user.save().then(()=>{
+//         res.status(201).send(user);
+//     }).catch((e)=>{
+//         res.status(400).send(e);  //best part of this you can catch the error
+//     })
+// })
+
+
+
+PUT
+
+If the client sends data with an identifier, then we will check whether that identifier exists. If the identifier exists, 
+we will update the resource with the data, else we will create a resource with the data and assign/generate a new identifier.
+
+PATCH
+
+If the client sends data with an identifier, then we will check whether that identifier exists. If the identifier exists, 
+we will update the resource with the data, else we will throw an exception.
+Note: On the PUT method, we are not throwing an exception if an identifier is not found. But in the PATCH method, 
+we are throwing an exception if the identifier is not found.
+
+POST - Create NEW record
+
+PUT - If the record exists, update, else create a new record.
+
+PATCH - update
+
+GET - read
+
+DELETE - delete
+
+---------------------------------
+----------------------------
+Build RESTFul API ✌ Handling Get Request in REST API using NodeJS & MongoDB
+
+// read the data of registerd students
+app.get("/students",async (req, res)=>{
+    try {
+           const studentsData= await Student.find();
+           res.send(studentsData);
+        
+    } catch (e) {
+        res.send(e)
+        
+    }
+
+
+    // for getting particular data by api hitting using id basis
+
+    app.get("/students/:id",async (req, res) => {
+        try {
+            const _id=req.params.id;
+            const studentData= await Student.findById(_id);
+            //if you want to print on console
+            console.log(studentData)
+
+            if(!studentData){
+                return res.status(404).send();
+            }
+            else{
+                res.send(studentData);
+            }
+
+        } catch (e) {
+            res.status(500).send(e)
+            
+        }
+
+    })
+
+    Handling PUT❓ PATCH Request in REST API using NodeJS & MongoDB
+
+    update the students by it id
+    // update the students by it id
+
+app.patch("/students/:id", async (req, res) => {
+
+    try {
+        const _id=req.params.id;
+       const updateStudents = await Student.findByIdAndUpdate(_id, req.body,{ // it return promise it means that, ya to fullfil hoga ya to reject hoga, so avoid it, we use await,async and it wait the result untill print it, its result will print in future
+        new:true
+       });
+       res.send(updateStudents);
+    } catch (e) {
+        res.status(400).send(e);
+    }
+
+})
+
+-----------------------------------------
+
+Build RESTFul API ✌ Handling DELETE Request in REST API using NodeJS & MongoDB
+
+delete the students by it id
+ 
+
+//delet the Students by it id
+app.delete("/students/:id", async (req, res) =>{
+    try {
+        
+        const deletStudent=await Student.findByIdAndDelete(req.params.id)
+        if(!req.params.id){
+            return res.status(400).send()
+        }
+        res.send(deletStudent);
+        
+    } catch (e) {
+        res.status(500).send(e);
+        
+    }
+})
+
+#. Adding Express Router in RestFul API
+        the above example we created the whole api using express in one file and file are not perfectly organised 
+        so with the help of router we can all file organized for example index.js, adding, deleting, updating, files etc.A
